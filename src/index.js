@@ -1,8 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom";
-
 import "./styles.css";
 import logo from "./images/logo.png";
+import Loader from "./components/Loader";
+import Popup from "./components/Popup";
 
 function CharacterCard(props) {
   const { character } = props;
@@ -20,24 +21,42 @@ function CharacterCard(props) {
 }
 
 class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.togglePopup = this.togglePopup.bind(this);
+    this.fetchCharacters = this.fetchCharacters.bind(this);
+    this.getNameTest = this.getNameTest.bind(this);
+  }
+
   state = {
-    loading: true,
-    error: null,
+    loading: true, // Indicador para decir que esta cargando.
+    error: null, // Para cachear el error.
     data: {
       info: {},
       results: []
     },
-    nextPage: 1
+    nextPage: 1,
+    showPopup: false
   };
+
+  togglePopup() {
+    this.setState({
+      showPopup: !this.state.showPopup
+    });
+  }
 
   componentDidMount() {
     this.fetchCharacters();
   }
 
   fetchCharacters = async () => {
-    this.setState({ loading: true, error: null });
+    this.setState({
+      loading: true,
+      error: null
+    });
 
     try {
+      // fetch() permite hacer un GET de un determinado endpoint.
       const response = await fetch(
         `https://rickandmortyapi.com/api/character/?page=${this.state.nextPage}`
       );
@@ -52,13 +71,20 @@ class App extends React.Component {
         nextPage: this.state.nextPage + 1
       });
     } catch (error) {
-      this.setState({ loading: false, error: error });
+      this.setState({
+        loading: false,
+        error: error
+      });
     }
+  };
+
+  getNameTest(event){
+    console.log(event.name);
   };
 
   render() {
     if (this.state.error) {
-      return "Error!";
+      return <h1>{`Error: ${this.state.error.message}`}</h1>;
     }
 
     return (
@@ -69,15 +95,21 @@ class App extends React.Component {
           <ul className="row">
             {this.state.data.results.map(character => (
               <li className="col-6 col-md-3" key={character.id}>
-                <CharacterCard character={character} />
+                <CharacterCard onClick={this.getNameTest} character={character} />
               </li>
             ))}
           </ul>
 
-          {this.state.loading && <p className="text-center">Loading...</p>}
+          {/* && Evalua la condicion y se toma como un entonces */}
+          {this.state.loading && (
+            <div className="text-center">
+              <Loader />
+            </div>
+          )}
 
+          {/* Cuando no este cargando se va a mostrar el boton */}
           {!this.state.loading && this.state.data.info.next && (
-            <button onClick={() => this.fetchCharacters()}>Load More</button>
+            <button onClick={this.fetchCharacters}>Load More</button>
           )}
         </div>
       </div>

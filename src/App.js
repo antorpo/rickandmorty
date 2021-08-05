@@ -6,6 +6,8 @@ import { CharacterCard } from "./components/CharacterCard";
 import "./App.css";
 
 export const App = () => {
+  const [character, setCharacter] = useState();
+  const [popup, setPopup] = useState(false);
   const [state, setState] = useState({
     loading: true,
     error: null,
@@ -14,15 +16,15 @@ export const App = () => {
       results: [],
     },
     nextPage: 1,
-    showPopup: false,
   });
 
-  const togglePopup = () => {
-    console.log(state)
-    debugger;
-    setState({ showPopup: !state.showPopup });
-    console.log(state)
-    debugger;
+  const openPopup = (item) => {
+    setCharacter(item)
+    setPopup(true);
+  };
+
+  const closePopup = () => {
+    setPopup(false);
   };
 
   const fetchCharacters = async () => {
@@ -36,7 +38,6 @@ export const App = () => {
       const data = await response.json();
 
       setState({
-        ...state,
         loading: false,
         data: {
           info: data.info,
@@ -77,7 +78,7 @@ export const App = () => {
                 className="col-6 col-md-3"
                 style={{ cursor: "pointer" }}
                 key={character.id}
-                onClick={togglePopup}
+                onClick={() => openPopup(character)}
               >
                 <CharacterCard character={character} />
               </li>
@@ -86,9 +87,9 @@ export const App = () => {
         )}
 
         <Popup
-          character={{ name: "hola", gender: "male", species: "Programmer"}}
-          isOpen={state.showPopup}
-          closePopup={togglePopup}
+          character={character}
+          isOpen={popup}
+          closePopup={closePopup}
         />
         {/* Cuando no este cargando se va a mostrar el boton */}
         {!state.loading && state.data.info.next && (

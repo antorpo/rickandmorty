@@ -1,18 +1,26 @@
 import React from "react";
+import { createPortal } from "react-dom";
 import "./styles/Popup.css";
 
-class Popup extends React.Component{
-    render() {
-        return (
-          <div className='popup'>
-            <div className='popup_inner'>
-              <h1>{this.props.text}</h1>
-            <button onClick={this.props.closePopup}>Close</button>
-            </div>
-          </div>
-        );
-      }
-}
+const popupRoot = document.getElementById("popup");
 
+export const Popup = ({ isOpen, character, closePopup }) => {
+  if (!isOpen) {
+    return null;
+  }
 
-export default Popup;
+  const jsx = (
+    <div className="popup-box">
+      <div className="box">
+        <h1>{character.name}</h1>
+        <h3>Gender: {character.gender}</h3>
+        <h3>Specie: {character.species}</h3>
+        <span className="close-icon" onClick={closePopup}>
+          X
+        </span>
+      </div>
+    </div>
+  );
+
+  return createPortal(jsx, popupRoot);
+};
